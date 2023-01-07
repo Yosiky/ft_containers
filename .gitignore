@@ -1,2 +1,3 @@
 .vscode/
-*/*.gch
+*.gch
+a.out
