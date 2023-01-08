@@ -1,44 +1,34 @@
-COMPILER	=	g++
-CFLAGS		=	--std=c++98#-Wall -Wextra -Werror
-DEBUG		=	-g3
-OPT			=	-o3
+CC			=	clang++
+CFLAGS		=	--std=c++98 # -Wall -Wextra -Werror	
+# CFLAGS		+=	-g3
+# CFLAGS		+=	-O3
 
-LIBRARY		=	-lc
-
-NAME		=	libcontainers.a
-
+DIR			=	$$(TEST_DIR)
 DIR_INC		=	inc
-HEADERS		=	philo.h
-CHEADER		=	$(addprefix -I,$(DIR_INC))
-LIST_HEADER	=	$(addprefix $(DIR_INC)/,$(HEADERS))
 
-DIR_SRC 	=	src
-SRC			=		
+SRC_INC		=	defines.hpp
+PATH_INC	=	$(addprefix $(DIR_INC)/$(SRC_INC))
 
-DIR_OBJ		=	obj
-OBJ			=	$(addprefix $(DIR_OBJ)/,$(SRC:.c=.o))
+SRC			=	test.cpp
+HEADER		=	$(DIR).hpp
+PATH_HEADER	=	$(addprefix $(DIR)/$(HEADER))
 
-all: $(DIR_OBJ) $(NAME)
+OBJ			=	$(addprefix $(DIR)/$(SRC:.cpp=.o))
 
-clean: 
-	rm -rf $(DIR_OBJ)
+NAME		=	$(addprefix test_$(DIR))
 
-fclean: clean
-	rm -rf $(NAME)
+$(NAME): 
+
+all: $(NAME)
+
+clean:
+	@printf "rm %s" $(DIR)/$(NAME).o
+	@rm $(DIR)/$(NAME).o
+
+fclean:	clean
+	@printf "rm %s" $(DIR)/$(NAME)
+	@rm $(DIR)/$(NAME)
 
 re: fclean all
-
-$(DIR_OBJ):
-	mkdir -p $@
-
-$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c $(LIST_HEADER) Makefile
-	$(COMPILER) $(CFLAGS) $(DEBUG) $(CHEADER) $< -c -o $@
-
-$(NAME): $(OBJ) $(LIST_HEADER) Makefile
-	ar -rc $@ $(OBJ)
-	ranlib $@
-
-test: $(NAME)
-	$(COMPILER) -L. -lcontainers test/main.cpp -o test
 
 .PHONY: all clean fclean re
