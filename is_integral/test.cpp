@@ -1,12 +1,18 @@
 #include <iostream>
 #include "is_integral.hpp"
+#include <type_traits>
 
 #define SHOW(value) \
-    std::cout << #value << " == " << value << std::endl
+    std::cout << (#value) << " == " << (value) << std::endl
+
+namespace on = ft;
+
 
 class A { };
 
 int main(void) {
+    // on::is_integral<A> a;
+    // std::cout << on::is_integral<A>::value;
     SHOW(ft::is_integral<A>::value);
     SHOW(ft::is_integral<bool>::value);
     SHOW(ft::is_integral<char>::value);
