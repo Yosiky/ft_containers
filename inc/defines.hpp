@@ -1,6 +1,7 @@
 #ifndef DEFINES_HPP
 # define DEFINES_HPP
 
+# define FT 
 # define CPP	    1
 # define CPP98		__cplusplus >= 199711L
 # define CPP11		__cplusplus >= 201103L
