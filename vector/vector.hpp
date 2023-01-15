@@ -2,9 +2,10 @@
 # define VECTOR_HPP
 
 # include <memory>
-# include <iterator>
 # include <exception>
+
 # include "defines.hpp"
+# include "random_iterator.hpp"
 
 namespace ft {
 
@@ -25,12 +26,10 @@ namespace ft {
         typedef std::ptrdiff_t                                  difference_type;
         typedef value_type&                                     reference;
         typedef const value_type&                               const_reference;
-        typedef ee::iterator<
-            std::random_access_iterator_tag, value_type>        iterator;
-        typedef ee::iterator<
-            std::random_access_iterator_tag, const_value_type>  const_iterator;
-        typedef ee::reverse_iterator<iterator>                 reverse_iterator;
-        typedef ee::reverse_iterator<const_iterator>           const_reverse_iterator;
+        typedef wrapper_iterator<value_type>                    iterator;
+        typedef wrapper_iterator<const_value_type>              const_iterator;
+        typedef wrapper_reverse_iterator<value_type>            reverse_iterator;
+        typedef wrapper_reverse_iterator<const_value_type>      const_reverse_iterator;
 
 /* # if PRECPP11 */
 
@@ -227,11 +226,11 @@ namespace ft {
         iterator end() { return (iterator(_end)); }
         const_iterator end() const { return (iterator(_end)); }
 
-        reverse_iterator rbegin() { return (reverse_iterator(_begin)); }
-        const_reverse_iterator rbegin() const { return (reverse_iterator(_begin)); }
+        reverse_iterator rbegin() { return (reverse_iterator(_end - 1)); }
+        const_reverse_iterator rbegin() const { return (reverse_iterator(_end - 1)); }
 
-        reverse_iterator rend() { return (reverse_iterator(_end)); }
-        const_reverse_iterator rend() const { return (reverse_iterator(_end)); }
+        reverse_iterator rend() { return (reverse_iterator(_begin - 1)); }
+        const_reverse_iterator rend() const { return (reverse_iterator(_begin - 1)); }
 
         
     };

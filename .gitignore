@@ -1,3 +1,7 @@
 .vscode/
 *.gch
 a.out
+*.log
+*.o
+*.d
+

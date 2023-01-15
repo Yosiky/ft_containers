@@ -47,4 +47,16 @@
 
 # endif
 
+# ifndef PANIC_ON
+#  define PANIC_ON(expr, msg)                       \
+    do {                                            \
+        if ((expr) == 0) {                          \
+            std::cerr << __FILE__ << ":"            \
+                << __LINE__ << " "                  \
+                << (msg) << std::endl;              \
+            std::abort();                           \
+        }                                           \
+   } while (false)                              
+# endif
+
 #endif
