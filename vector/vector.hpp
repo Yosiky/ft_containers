@@ -29,8 +29,8 @@ namespace ft {
             std::random_access_iterator_tag, value_type>        iterator;
         typedef ee::iterator<
             std::random_access_iterator_tag, const_value_type>  const_iterator;
-        typedef std::reverse_iterator<iterator>                 reverse_iterator;
-        typedef std::reverse_iterator<const_iterator>           const_reverse_iterator;
+        typedef ee::reverse_iterator<iterator>                 reverse_iterator;
+        typedef ee::reverse_iterator<const_iterator>           const_reverse_iterator;
 
 /* # if PRECPP11 */
 
