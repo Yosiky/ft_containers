@@ -47,6 +47,8 @@
 
 # endif
 
+# include <cstdlib>
+
 # ifndef PANIC_ON
 #  define PANIC_ON(expr, msg)                       \
     do {                                            \

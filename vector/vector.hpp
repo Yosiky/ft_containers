@@ -9,13 +9,11 @@
 
 namespace ft {
 
-    namespace ee = std;
-
 # ifdef FT 
 #  include "enable_if.hpp"
 #  include "is_integral.hpp"
 # endif
-
+    
     template<class T, class Allocator = std::allocator<T> >
     class vector {
     public:
@@ -70,7 +68,7 @@ namespace ft {
         }
 
         template <class InputIt,
-                 typename ee::enable_if<!ee::is_integral<InputIt>::value, InputIt>::type>
+                 enable_if<!is_integral<InputIt>::value, InputIt>::type>
         void cpy(pointer dst, InputIt itBegin, InputIt itEnd) {
             for (; itBegin != itEnd; ++itBegin) {
                 allocator.construct(dst++, *itBegin);
@@ -85,7 +83,7 @@ namespace ft {
         }
 
         template <class InputIt,
-                 typename ee::enable_if<!ee::is_integral<InputIt>::value, InputIt> >
+                 enable_if<!is_integral<InputIt>::value, InputIt> >
         void init(InputIt first, InputIt last) {
             difference = std::distance(first, last);
             _begin = allocator.allocate(difference);
@@ -231,7 +229,6 @@ namespace ft {
 
         reverse_iterator rend() { return (reverse_iterator(_begin - 1)); }
         const_reverse_iterator rend() const { return (reverse_iterator(_begin - 1)); }
-
         
     };
 }

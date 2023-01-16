@@ -7,8 +7,10 @@
 
 namespace ft {
 
-    // typedef uint_least16_t char16_t;
-    // typedef uint_least32_t char32_t;
+# ifdef FT
+    typedef uint_least16_t char16_t;
+    typedef uint_least32_t char32_t;
+# endif 
 
     template <class T> struct is_integral : public ft::false_type { };
 

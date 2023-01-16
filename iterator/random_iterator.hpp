@@ -2,12 +2,10 @@
 # define RANDOM_ACCESS_ITERATOR_HPP
 
 # include <iterator>
+# include "defines.hpp"
 
 namespace ft {
     
-    namespace ee = std;
-
-
     template <class T>
     class iterator_base: public std::iterator<std::random_access_iterator_tag, T> {
     
