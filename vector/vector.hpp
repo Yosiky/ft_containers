@@ -1,18 +1,16 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
-
+t
 # include <memory>
 # include <exception>
+# include <limits>
 
 # include "defines.hpp"
 # include "random_iterator.hpp"
+# include "enable_if.hpp"
+# include "is_integral.hpp"
 
 namespace ft {
-
-# ifdef FT 
-#  include "enable_if.hpp"
-#  include "is_integral.hpp"
-# endif
     
     template<class T, class Allocator = std::allocator<T> >
     class vector {
@@ -42,195 +40,318 @@ namespace ft {
 
     private:
 
-        difference_type difference;
+        size_type       sizeAllocMem;
         allocator_type  allocator;
-        pointer         _begin;
-        pointer         _end;
+        pointer         pArrBegin;
+        pointer         pArrEnd;
 
-        void cpy(pointer dst, pointer src, size_type count) {
-            pointer iterDst = dst;
-            pointer iterSrc = src;
-
-            for (size_type i = 0; i < count; ++i) {
-                allocator.construct(iterDst, *iterSrc);
-                ++iterDst;
-                ++iterSrc;
+        void copyContext(pointer pArgDst, size_type argCount, size_type argValueInit) {
+            for (size_type i = 0; i < argCount; ++i) {
+                pArgDst[i] = argValueInit;
             }
         }
 
-        void cpy(pointer dst, const_reference value, size_type count) {
-            pointer iter = dst;
-
-            for (size_type i = 0; i < count; ++i) {
-                allocator.construct(iter, value);
-                ++iter;
+        void copyContext(pointer pArgDst, pointer pArgSrc, size_type argCount) {
+            pArgDst += argCount;
+            pArgSrc += argCount;
+            while (argCount-- > 0) {
+                *(--pArgDst) = *(--pArgSrc);
             }
         }
 
-        template <class InputIt,
-                 enable_if<!is_integral<InputIt>::value, InputIt>::type>
-        void cpy(pointer dst, InputIt itBegin, InputIt itEnd) {
-            for (; itBegin != itEnd; ++itBegin) {
-                allocator.construct(dst++, *itBegin);
+        template <class InputIt>
+        void copyContext(pointer pArgDst, 
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+            pArgDst += std::distance(argItEnd, argItBegin);
+            for (InputIt it = argItEnd - 1; it >= argItBegin; --it)
+                *(--pArgDst) = *it;
+        }
+
+        void initMem(pointer pArgBegin, size_type argCount) {
+            value_type value;
+
+            while (argCount-- > 0) {
+                allocator.construct(pArgBegin++, value);
             }
         }
 
-        void init(size_type count, const_reference value) {
-            difference = count;
-            _begin = allocator.allocate(count);
-            _end = _begin + difference;
-            cpy(_begin, value, count);
+        void cpy(pointer pArgDst, pointer pArgSrc, size_type argCount) {
+            for (size_type i = 0; i < argCount; ++i) {
+                allocator.construct(pArgDst++, *(pArgSrc++));
+            }
         }
 
-        template <class InputIt,
-                 enable_if<!is_integral<InputIt>::value, InputIt> >
-        void init(InputIt first, InputIt last) {
-            difference = std::distance(first, last);
-            _begin = allocator.allocate(difference);
-            _end = _begin + difference;
-            cpy(_begin, first, last);
+        void cpy(pointer pArgDst, const_reference argValueInit, size_type argCount) {
+            for (size_type i = 0; i < argCount; ++i) {
+                allocator.construct(pArgDst++, argValueInit);
+            }
+        }
+
+        template <class InputIt>
+        void cpy(pointer pArgDst, 
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin, 
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+            for (; argItBegin != argItEnd; ++argItBegin) {
+                allocator.construct(pArgDst++, *argItBegin);
+            }
+        }
+
+        void init(size_type argCount, const_reference argValueInit) {
+            sizeAllocMem = argCount;
+            pArrBegin = allocator.allocate(sizeAllocMem);
+            pArrEnd = pArrBegin + argCount;
+            cpy(pArrBegin, argValueInit, argCount);
+        }
+
+        template <class InputIt>
+        void init(
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin, 
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+            difference_type diffPtr = std::distance(argItEnd, argItBegin);
+            sizeAllocMem = diffPtr;
+            pArrBegin = allocator.allocate(diffPtr);
+            pArrEnd = pArrBegin + diffPtr;
+            cpy(pArrBegin, argItBegin, argItEnd);
         }
 
         void clean() {
-            for (pointer it = _begin; it != _end; ++it)
-                allocator.destroy(it);
-            allocator.deallocate(_begin, difference);
-        }
+            
+            difference_type diffPtr = this->size();
 
+            for (pointer it = pArrBegin; it != pArrEnd; ++it)
+                allocator.destroy(it);
+            allocator.deallocate(pArrBegin, diffPtr);
+            pArrBegin = NULL;
+            pArrEnd = NULL;
+        }
 
     public:
 
         constexpr vector()
-        :   difference(0),
-            _begin(NULL),
-            _end(NULL) { }
+        :   sizeAllocMem(0),
+            allocator(),
+            pArrBegin(NULL),
+            pArrEnd(NULL) { }
 
-        constexpr explicit vector(const allocator_type &alloc) noexcept
-        :   difference(0),
-            allocator(alloc),
-            _begin(NULL),
-            _end(NULL) { }
+        constexpr explicit vector(const allocator_type &argAllocator) noexcept
+        :   sizeAllocMem(0),
+            allocator(argAllocator),
+            pArrBegin(NULL),
+            pArrEnd(NULL) { }
 
-        explicit vector(size_type count,
-                        const value_type &value = T(),
-                        const allocator_type &alloc = allocator_type()) 
-        :   difference(0),
-            allocator(alloc),
-            _begin(NULL),
-            _end(NULL) {
-            if (count > 0)
-                init(count, value);
+        explicit vector(size_type argCount,
+                        const value_type &argValueInit = T(),
+                        const allocator_type &argAllocator = allocator_type()) 
+        :   sizeAllocMem(0),
+            allocator(argAllocator),
+            pArrBegin(NULL),
+            pArrEnd(NULL) {
+            if (argCount > 0)
+                init(argCount, argValueInit);
         }
 
         // constexpr explicit vector( size_type count, const Allocator& alloc = Allocator() ) // (since C++20)
 
         template<class InputIt>
-        constexpr vector(InputIt first, InputIt last, const allocator_type &alloc = allocator_type())
-        :   difference(0),
-            allocator(alloc),
-            _begin(NULL),
-            _end(NULL) {
-            init(first, last);
+        constexpr vector(
+            typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argFirst, 
+            typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argLast, 
+            const allocator_type &argAllocator = allocator_type())
+        :   sizeAllocMem(0),
+            allocator(argAllocator),
+            pArrBegin(NULL),
+            pArrEnd(NULL) {
+            init(argFirst, argLast);
         }
 
-        constexpr vector(const vector &other) 
-        :   difference(other.difference),
-            _begin(NULL),
-            _end(NULL) {
-            init(other.begin(), other.end());
+        constexpr vector(const vector &argOtherVector) {
+            init(argOtherVector.begin(), argOtherVector.end());
         }
 
         // constexpr vector( const vector& other, const Allocator& alloc );  // (since C++20)
         // constexpr vector( vector&& other ) noexcept; // (since C++20)
         // constexpr vector( vector&& other, const Allocator& alloc );  // (since C++20)
-        // constexpr vector( std::initializer_list<T> init, const Allocator& alloc = Allocator() ); // (since C++20)
+        // constexpr vector( initializer_list<T> init, const Allocator& alloc = Allocator() ); // (since C++20)
 
         ~vector(void) {
             clean();
         }
 
-        constexpr vector& operator=(const vector &other) {
+        constexpr vector& operator=(const vector &argOtherVector) {
             clean();
-            init(other.begin(), other.end());
+            init(argOtherVector.begin(), argOtherVector.end());
         }
 
-        void assign(size_type count, const T &value) {
+        void assign(size_type argSizeArray, const T &argValueInit) {
             clean();
-            init(count, value);
+            init(argSizeArray, argValueInit);
         }
 
         template< class InputIt >
-        void assign(InputIt first, InputIt last) {
+        void assign(
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argBeginIt,
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argEndIt) {
             clean();
-            init(first, last);
+            init(argBeginIt, argEndIt);
         }
 
-        allocator_type get_allocator(void) const {
+        allocator_type get(void) const {
             return (allocator);
         }
 
-        reference at(size_type pos) {
-            if (pos >= difference)
+        reference at(size_type argPosition) {
+            if (argPosition >= this->size())
                 throw std::out_of_range("vector<..> out_of_range");
-            return (*(_begin + pos));
+            return (*(pArrBegin + argPosition));
         }
 
-        const_reference at(size_type pos) const {
-            if (pos >= difference)
+        const_reference at(size_type argPosition) const {
+            if (argPosition >= this->size())
                 throw std::out_of_range("vector<..> out_of_range");
-            return (*(_begin + pos));
-        }
- 
-        constexpr reference operator[](size_type pos) {
-            return (*(_begin + pos));
+            return (*(pArrBegin + argPosition));
         }
 
-        constexpr const_reference operator[]( size_type pos ) const {
-            return (*(_begin + pos));
+        constexpr reference operator[](size_type argPosition) {
+            return (*(pArrBegin + argPosition));
         }
 
-        constexpr reference front() {
-            return (*_begin);
+        constexpr const_reference operator[]( size_type argPosition) const {
+            return (*(pArrBegin + argPosition));
         }
 
-        constexpr const_reference front() const {
-            return (*_begin);
+        constexpr reference front(void) {
+            return (*pArrBegin);
         }
 
-        constexpr reference back() {
-            return (*(_end - 1));
+        constexpr const_reference front(void) const {
+            return (*pArrBegin);
         }
 
-        constexpr const_reference back() const {
-            return (*(_end - 1));
+        constexpr reference back(void) {
+            return (*(pArrEnd - 1));
         }
 
+        constexpr const_reference back(void) const {
+            return (*(pArrEnd - 1));
+        }
 
-        value_type *data() {
-            if (difference == 0)
+        value_type *data(void) {
+            if (this->size() == 0)
                 return (NULL);
-            return (_begin);
+            return (pArrBegin);
         }
 
-        const_value_type *data() const {
-            if (difference == 0)
+        const_value_type *data(void) const {
+            if (this->size() == 0)
                 return (NULL);
-            return (_begin);
+            return (pArrBegin);
         }
 
-        iterator begin() { return (iterator(_begin)); }
-        const_iterator begin() const { return (iterator(_begin)); }
+        iterator begin(void) { return (iterator(pArrBegin)); }
+        const_iterator begin(void) const { return (iterator(pArrBegin)); }
 
-        iterator end() { return (iterator(_end)); }
-        const_iterator end() const { return (iterator(_end)); }
+        iterator end(void) { return (iterator(pArrEnd)); }
+        const_iterator end(void) const { return (iterator(pArrEnd)); }
 
-        reverse_iterator rbegin() { return (reverse_iterator(_end - 1)); }
-        const_reverse_iterator rbegin() const { return (reverse_iterator(_end - 1)); }
+        reverse_iterator rbegin(void) { return (reverse_iterator(pArrEnd - 1)); }
+        const_reverse_iterator rbegin(void) const { return (reverse_iterator(pArrEnd - 1)); }
 
-        reverse_iterator rend() { return (reverse_iterator(_begin - 1)); }
-        const_reverse_iterator rend() const { return (reverse_iterator(_begin - 1)); }
-        
+        reverse_iterator rend(void) { return (reverse_iterator(pArrBegin - 1)); }
+        const_reverse_iterator rend(void) const { return (reverse_iterator(pArrBegin - 1)); }
+
+        bool empty(void) const noexcept {
+            return (pArrBegin == pArrEnd);
+        }
+
+        size_type size(void) const noexcept {
+            return (pArrEnd - pArrBegin);
+        }
+
+        size_type max_size(void) const noexcept {
+            return (std::numeric_limits<difference_type>::max());
+        }
+
+        void reverse(size_type argCapacity) {
+            if (argCapacity > std::numeric_limits<difference_type>::max())
+                throw std::length_error("argument new_cap more than std::numeric_limits<difference_type>::max()");
+            else if (argCapacity > sizeAllocMem) {
+                size_type   count = this->size();
+                pointer     pNewArrBegin = allocator.allocate(argCapacity);
+
+                sizeAllocMem = argCapacity;
+                cpy(pNewArrBegin, pArrBegin, count);
+                clean();
+                pArrBegin = pNewArrBegin;
+                pArrEnd = pArrBegin + count;
+            }
+        }
+
+        size_type capacity(void) const noexcept {
+            return (sizeAllocMem);
+        }
+
+        void clear(void) noexcept {
+            clean();
+        }
+
+        iterator insert(const_iterator argPos, const_reference argValueInit) {
+            return (this->insert(argPos, 1, argValueInit));
+        }
+
+        iterator insert(const_iterator argPos, size_type argCount, const_reference argValueInit) {
+            difference_type count = this->size();
+            difference_type indx = std::distance(argPos, this->begin());
+
+            if (sizeAllocMem >= count + argCount) {
+                initMem(pArrEnd, argCount);
+                copyContext(pArrBegin + indx + argCount, pArrBegin + indx, count - indx);
+                copyContext(pArrBegin + indx, argCount, argValueInit);
+                pArrEnd += argCount;
+            }
+            else {
+                pointer pNewArrBegin;
+
+                sizeAllocMem += argCount;
+                pNewArrBegin = allocator.allocate(sizeAllocMem);
+                cpy(pNewArrBegin, pArrBegin, indx);
+                cpy(pNewArrBegin + indx, argCount, argValueInit);
+                cpy(pNewArrBegin + indx + argCount, pArrBegin + indx, count - indx);
+                clean();
+                pArrBegin = pNewArrBegin;
+                pArrEnd = pArrBegin + sizeAllocMem;
+            }
+            return (iterator(pArrBegin + indx));
+        }
+
+        template <class InputIt>
+        iterator insert(const_iterator argPos, InputIt argItBegin, InputIt argItEnd) {
+            difference_type distItInsert = std::distance(argItEnd, argItBegin);
+            difference_type count = this->size();
+            difference_type indx = std::distance(argPos, this->begin());
+
+            if (sizeAllocMem >= distItInsert + count) {
+                initMem(pArrEnd, distItInsert);
+                copyContext(pArrBegin + indx + distItInsert, pArrBegin + indx, count - indx);
+                copyContext(pArrBegin + indx, argItBegin, argItEnd);
+                pArrEnd += distItInsert;
+            }
+            else {
+                pointer pNewArrBegin;
+
+                sizeAllocMem += distItInsert;
+                pNewArrBegin = allocator.allocate(sizeAllocMem);
+                cpy(pNewArrBegin, pArrBegin, indx);
+                cpy(pNewArrBegin + indx, argItBegin, argItEnd);
+                cpy(pNewArrBegin + indx + distItInsert, pArrBegin + indx, count - indx);
+                clean();
+                pArrBegin = pNewArrBegin;
+                pArrEnd = pArrBegin + sizeAllocMem;
+            }
+            return (iterator(pArrBegin + indx));
+        }
     };
+
 }
 
-#endif // VECTOR_HPP
+#endif // VECTOR_HP_P

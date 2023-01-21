@@ -2,8 +2,22 @@
 #include <vector>
 #include "vector.hpp"
 
+class A {
+
+};
 
 int main(void) {
+    ft::vector<int> arr;
+
+    for (int i = 0; i < 10; ++i) {
+        arr.insert(arr.begin() + i, i);
+    }
+    for (int i = 0; i < 10; ++i) {
+        std::cout << i << std::endl;
+    }
+}
+
+int main1(void) {
     ft::vector<int> arr(10, 42);
     int count;
 

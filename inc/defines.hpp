@@ -16,7 +16,6 @@
 # define PRECPP20	__cplusplus <  202002L
 # define PRECPP23	1
 
-
 # if PRECPP11
 #  ifndef constexpr
 #   define constexpr

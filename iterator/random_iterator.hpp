@@ -150,25 +150,73 @@ namespace ft {
     template <class T>
     class wrapper_iterator: public iterator_base<T> {
 
-            typedef iterator_base<T> parent;
-            typedef typename parent::value_type     value_type;
-            typedef typename parent::pointer        pointer;
-
+        typedef iterator_base<T> parent;
+        typedef typename parent::value_type     value_type;
+        typedef typename parent::pointer        pointer;
+        typedef typename parent::self_type      self_type;
 
             wrapper_iterator(void);
 
-        public:
+    public:
 
-            explicit wrapper_iterator(pointer other)
-            : parent(other) { }
+        explicit wrapper_iterator(pointer other)
+        : parent(other) { }
 
-            wrapper_iterator(const wrapper_iterator<value_type> &other)
-            : parent(other) { }
+        wrapper_iterator(const self_type &other)
+        : parent(other) { }
 
-            wrapper_iterator<value_type> &operator=(
-                    const wrapper_iterator<value_type> &other) {
-                parent::operator=(other);
-            }
+        self_type &operator=(const self_type &other) {
+            parent::operator=(other);
+        }
+// override 
+        self_type operator++(int) {
+            self_type copy = *this;
+        
+            ++ptr;
+            return (copy);
+        }
+        
+// LegacyBidirectionalIterator
+        
+        self_type &operator--() {
+            --ptr;
+            return (*this);
+        }
+
+        self_type operator--(int) {
+            self_type copy = *this;
+
+            --ptr;
+            return (*this);
+        }
+        
+        self_type operator=(int) {
+            self_type copy = *this;
+        
+            --ptr;
+            return (copy);
+        }
+        
+// LegacyRandomAccessIterator
+        
+        self_type &operator+=(difference_type n) {
+            ptr += n;
+            return (*this);
+        }
+        
+        self_type operator+(difference_type n) const {
+            return (self_type(ptr + n));
+        }
+
+        friend self_type operator+(difference_type n, const self_type &other) {
+            return (other + n);
+        }
+
+        self_type &operator-=(difference_type n) {
+            ptr -= n;
+            return (*this);
+        }
+
     };
 
     template <class T>
