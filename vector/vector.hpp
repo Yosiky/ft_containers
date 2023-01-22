@@ -1,6 +1,6 @@
 #ifndef VECTOR_HPP
 # define VECTOR_HPP
-t
+
 # include <memory>
 # include <exception>
 # include <limits>
@@ -22,15 +22,15 @@ namespace ft {
         typedef std::ptrdiff_t                                  difference_type;
         typedef value_type&                                     reference;
         typedef const value_type&                               const_reference;
-        typedef wrapper_iterator<value_type>                    iterator;
-        typedef wrapper_iterator<const_value_type>              const_iterator;
-        typedef wrapper_reverse_iterator<value_type>            reverse_iterator;
-        typedef wrapper_reverse_iterator<const_value_type>      const_reverse_iterator;
+        typedef typename Allocator::pointer                     pointer;
+        typedef typename Allocator::const_pointer               const_pointer;
+        typedef wrapper_iterator<value_type>                       iterator;
+        typedef wrapper_iterator<const_value_type>                 const_iterator;
+        typedef wrapper_reverse_iterator<iterator>            reverse_iterator;
+        typedef wrapper_reverse_iterator<const_iterator>      const_reverse_iterator;
 
 /* # if PRECPP11 */
 
-        typedef typename Allocator::pointer          pointer;
-        typedef typename Allocator::const_pointer    const_pointer;
 
         // todo iterator
 /* # endif */
@@ -82,7 +82,7 @@ namespace ft {
             }
         }
 
-        void cpy(pointer pArgDst, const_reference argValueInit, size_type argCount) {
+        void cpy(pointer pArgDst, size_type argCount, const_reference argValueInit) {
             for (size_type i = 0; i < argCount; ++i) {
                 allocator.construct(pArgDst++, argValueInit);
             }
@@ -116,12 +116,9 @@ namespace ft {
         }
 
         void clean() {
-            
-            difference_type diffPtr = this->size();
-
             for (pointer it = pArrBegin; it != pArrEnd; ++it)
                 allocator.destroy(it);
-            allocator.deallocate(pArrBegin, diffPtr);
+            allocator.deallocate(pArrBegin, sizeAllocMem);
             pArrBegin = NULL;
             pArrEnd = NULL;
         }
@@ -252,13 +249,13 @@ namespace ft {
         const_iterator begin(void) const { return (iterator(pArrBegin)); }
 
         iterator end(void) { return (iterator(pArrEnd)); }
-        const_iterator end(void) const { return (iterator(pArrEnd)); }
+        const_iterator end(void) const { return (const_iterator(pArrEnd)); }
 
         reverse_iterator rbegin(void) { return (reverse_iterator(pArrEnd - 1)); }
         const_reverse_iterator rbegin(void) const { return (reverse_iterator(pArrEnd - 1)); }
 
         reverse_iterator rend(void) { return (reverse_iterator(pArrBegin - 1)); }
-        const_reverse_iterator rend(void) const { return (reverse_iterator(pArrBegin - 1)); }
+        const_reverse_iterator rend(void) const { return (const_reverse_iterator(pArrBegin - 1)); }
 
         bool empty(void) const noexcept {
             return (pArrBegin == pArrEnd);
@@ -301,9 +298,9 @@ namespace ft {
 
         iterator insert(const_iterator argPos, size_type argCount, const_reference argValueInit) {
             difference_type count = this->size();
-            difference_type indx = std::distance(argPos, this->begin());
+            difference_type indx = std::distance(const_iterator(pArrBegin), argPos);
 
-            if (sizeAllocMem >= count + argCount) {
+            if (sizeAllocMem > count + argCount) {
                 initMem(pArrEnd, argCount);
                 copyContext(pArrBegin + indx + argCount, pArrBegin + indx, count - indx);
                 copyContext(pArrBegin + indx, argCount, argValueInit);
@@ -325,12 +322,14 @@ namespace ft {
         }
 
         template <class InputIt>
-        iterator insert(const_iterator argPos, InputIt argItBegin, InputIt argItEnd) {
-            difference_type distItInsert = std::distance(argItEnd, argItBegin);
+        iterator insert(const_iterator argPos,
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+            difference_type distItInsert = std::distance(argItBegin, argItEnd);
             difference_type count = this->size();
-            difference_type indx = std::distance(argPos, this->begin());
+            difference_type indx = std::distance(argPos, const_iterator(pArrBegin));
 
-            if (sizeAllocMem >= distItInsert + count) {
+            if (sizeAllocMem > distItInsert + count) {
                 initMem(pArrEnd, distItInsert);
                 copyContext(pArrBegin + indx + distItInsert, pArrBegin + indx, count - indx);
                 copyContext(pArrBegin + indx, argItBegin, argItEnd);

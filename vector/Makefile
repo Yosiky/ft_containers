@@ -1,5 +1,5 @@
 CC			=	g++
-CFLAGS		=	-Wall -Wextra -Werror --std=c++98
+CFLAGS		=	-Wall -Wextra --std=c++98 -g3 -O0
 
 SRC			=	test.cpp
 
@@ -40,6 +40,6 @@ clean:
 	rm -rf $(NAME).d
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -rf $(NAME).out
 
 re: fclean all

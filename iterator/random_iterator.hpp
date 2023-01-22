@@ -7,13 +7,11 @@
 namespace ft {
     
     template <class T>
-    class iterator_base: public std::iterator<std::random_access_iterator_tag, T> {
+    class wrapper_iterator: public std::iterator<std::random_access_iterator_tag, T> {
     
     public:
-
         typedef std::random_access_iterator_tag tag;
         typedef std::iterator<tag, T>           iterator_traits;
-        typedef iterator_base<T>                self_type;
 
         typedef typename iterator_traits::iterator_category  iterator_category;
         typedef typename iterator_traits::value_type         value_type;
@@ -22,31 +20,39 @@ namespace ft {
         typedef typename iterator_traits::reference          reference;
 
     private:
+        typedef wrapper_iterator<T>             self_type;
         pointer ptr;
 
-        iterator_base(void);
+    private:
+        wrapper_iterator(void);
 
     public:
+
+        pointer base(void) const {
+            return (ptr);
+        }
+        
     
-        explicit iterator_base(pointer value)
+        wrapper_iterator(pointer value)
         : ptr(value) { }
 
-        iterator_base(const self_type &other)
-        : ptr(other.ptr) { }
+        template <class Up>
+        wrapper_iterator(const wrapper_iterator<Up> &other)
+        : ptr(other.base()) { }
 
         self_type &operator=(const self_type &other) {
             ptr = other.ptr;
         } 
 
-        ~iterator_base(void) { }
+        ~wrapper_iterator(void) { }
     
     // LegacyIterator
     
-        value_type &operator*() {
+        value_type &operator*(void) {
             return (*ptr);
         }
     
-        self_type &operator++() {
+        self_type &operator++(void) {
             ++ptr;
             return (*this);
         }
@@ -63,11 +69,11 @@ namespace ft {
             return (this->ptr != other.ptr);
         }
     
-        reference operator*() const {
+        reference operator*(void) const {
             return (*ptr);
         }
     
-        reference operator->() const {
+        reference operator->(void) const {
             return (*ptr);
         }
     
@@ -81,7 +87,7 @@ namespace ft {
         }
     
     // LegacyBidirectionalIterator
-    
+        
         self_type &operator--() {
             --ptr;
             return (*this);
@@ -92,13 +98,6 @@ namespace ft {
 
             --ptr;
             return (*this);
-        }
-    
-        self_type operator=(int) {
-            self_type copy = *this;
-    
-            --ptr;
-            return (copy);
         }
     
     // LegacyRandomAccessIterator
@@ -148,122 +147,125 @@ namespace ft {
     };
 
     template <class T>
-    class wrapper_iterator: public iterator_base<T> {
+    class wrapper_reverse_iterator {
 
-        typedef iterator_base<T> parent;
-        typedef typename parent::value_type     value_type;
-        typedef typename parent::pointer        pointer;
-        typedef typename parent::self_type      self_type;
+        typedef T                               iterator;
+        typedef wrapper_reverse_iterator<T>     self_type;
+        typedef typename iterator::value_type   value_type;
+        typedef typename iterator::pointer      pointer;
+        typedef typename iterator::reference    reference;
+        typedef typename iterator::difference_type  difference_type;
 
-            wrapper_iterator(void);
+        iterator it;
+
+        wrapper_reverse_iterator(void);
 
     public:
 
-        explicit wrapper_iterator(pointer other)
-        : parent(other) { }
+        wrapper_reverse_iterator(pointer other)
+        : it(other) { }
 
-        wrapper_iterator(const self_type &other)
-        : parent(other) { }
+        wrapper_reverse_iterator(iterator other) 
+        : it(other) { }
+
+        template <class Up>
+        wrapper_reverse_iterator(const wrapper_reverse_iterator<Up> &other)
+        : it(other.it.base()) { }
 
         self_type &operator=(const self_type &other) {
-            parent::operator=(other);
+            it = other.it;
         }
-// override 
-        self_type operator++(int) {
+
+        self_type &operator++() {
+            --it;
+            return (*this);
+        }
+
+        self_type &operator++(int) {
             self_type copy = *this;
-        
-            ++ptr;
+            
+            --it;
             return (copy);
         }
-        
-// LegacyBidirectionalIterator
-        
+
         self_type &operator--() {
-            --ptr;
+            ++it;
             return (*this);
         }
 
         self_type operator--(int) {
             self_type copy = *this;
 
-            --ptr;
+            ++it;
             return (*this);
         }
-        
-        self_type operator=(int) {
-            self_type copy = *this;
-        
-            --ptr;
-            return (copy);
+
+    // EqualityComparable
+    
+        bool operator==(const self_type &other) const {
+            return (this->it == other.it);
         }
-        
-// LegacyRandomAccessIterator
-        
+    
+    // LegacyInputIterator
+    
+        bool operator!=(const self_type &other) const {
+            return (this->it != other.it);
+        }
+    
+        reference operator*(void) const {
+            return (*it);
+        }
+    
+        reference operator->(void) const {
+            return (*it);
+        }
+    
+    // LegacyRandomAccessIterator
+    
         self_type &operator+=(difference_type n) {
-            ptr += n;
+            it += n;
             return (*this);
         }
-        
+    
         self_type operator+(difference_type n) const {
-            return (self_type(ptr + n));
+            return (self_type(it + n));
         }
 
         friend self_type operator+(difference_type n, const self_type &other) {
-            return (other + n);
+            return (self_type(other.it + n));
         }
 
         self_type &operator-=(difference_type n) {
-            ptr -= n;
+            it -= n;
             return (*this);
         }
 
-    };
+        difference_type operator-(const self_type &a) const {
+            return (this->it - a.it);
+        }
 
-    template <class T>
-    class wrapper_reverse_iterator: public iterator_base<T> {
+        reference operator[](difference_type n) const {
+            return (*(it + n));
+        }
 
-            typedef iterator_base<T> parent;
-            typedef typename parent::value_type     value_type;
-            typedef typename parent::pointer        pointer;
-            typedef wrapper_reverse_iterator<T>     self_type;
+        bool operator<(const self_type &other) const {
+            return (this->it < other.it);
+        }
 
-            wrapper_reverse_iterator(void);
+        bool operator>(const self_type &other) const {
+            return (this->it > other.it);
+        }
+    
+        bool operator>=(const self_type &other) const {
+            return (this->it >= other.it);
+        }
 
-        public:
+        bool operator<=(const self_type &other) const {
+            return (this->it <= other.it);
+        }
 
-            explicit wrapper_reverse_iterator(pointer other)
-            : parent(other) { }
 
-            wrapper_reverse_iterator(const self_type &other)
-            : parent(other) { }
 
-            self_type &operator=(const self_type &other) {
-                parent::operator=(other);
-            }
-
-            self_type &operator++() {
-                parent::operator--();
-                return (*this);
-            }
-
-            self_type &operator++(int) {
-                self_type copy = *this;
-                
-                parent::operator--();
-                return (copy);
-            }
-
-            self_type &operator--() {
-                parent::operator++();
-                return (*this);
-            }
-
-            self_type operator--(int) {
-                self_type copy = *this;
-
-                parent::operator++();
-                return (*this);
-            }
 
     };
 
