@@ -10,13 +10,30 @@ int main(void) {
     ft::vector<int> ftArr;
 
     for (int i = 0; i < 10; ++i) {
-        ftArr.insert(ftArr.begin(), i);
+        ftArr.insert(ftArr.begin() + i, i);
     }
 
     for (ft::vector<int>::iterator i = ftArr.begin(); i != ftArr.end(); ++i) {
         std::cout << *i << std::endl;
     }
     for (ft::vector<int>::reverse_iterator i = ftArr.rbegin(); i != ftArr.rend(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    for (int i = 0; i < 10; ++i) {
+        for (ft::vector<int>::iterator i = ftArr.begin(); i != ftArr.end(); ++i) {
+            std::cout << *i << " ";
+        }
+        std::cout << std::endl;
+        ftArr.erase(ftArr.begin());
+    }
+    for (int i = 0; i < 10; ++i) {
+        ftArr.insert(ftArr.begin() + i, i);
+    }
+    for (ft::vector<int>::iterator i = ftArr.begin(); i != ftArr.end(); ++i) {
+        std::cout << *i << std::endl;
+    }
+    ftArr.erase(ftArr.begin(), ftArr.end());
+    for (ft::vector<int>::iterator i = ftArr.begin(); i != ftArr.end(); ++i) {
         std::cout << *i << std::endl;
     }
     return (0);

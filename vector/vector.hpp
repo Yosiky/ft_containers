@@ -45,13 +45,27 @@ namespace ft {
         pointer         pArrBegin;
         pointer         pArrEnd;
 
+        void copyContextFromBegin(pointer pArgDst, pointer pArgSrc, size_type argCount) {
+            while (argCount-- > 0) {
+                *(pArgDst++) = *(pArgSrc++);
+            }
+        }
+
+        template <class InputIt>
+        void copyContextFromBegin(pointer pArgDst, 
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
+                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+            for (InputIt it = argItBegin; it != argItEnd; ++it)
+                *(pArgDst++) = *it;
+        }
+
         void copyContext(pointer pArgDst, size_type argCount, size_type argValueInit) {
             for (size_type i = 0; i < argCount; ++i) {
                 pArgDst[i] = argValueInit;
             }
         }
 
-        void copyContext(pointer pArgDst, pointer pArgSrc, size_type argCount) {
+        void copyContextFromEnd(pointer pArgDst, pointer pArgSrc, size_type argCount) {
             pArgDst += argCount;
             pArgSrc += argCount;
             while (argCount-- > 0) {
@@ -60,7 +74,7 @@ namespace ft {
         }
 
         template <class InputIt>
-        void copyContext(pointer pArgDst, 
+        void copyContextFromEnd(pointer pArgDst, 
                 typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
                 typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
             pArgDst += std::distance(argItEnd, argItBegin);
@@ -121,6 +135,14 @@ namespace ft {
             allocator.deallocate(pArrBegin, sizeAllocMem);
             pArrBegin = NULL;
             pArrEnd = NULL;
+        }
+
+        void cleanRange(pointer argStart, size_type argCount) {
+            pointer end = argStart + argCount;
+
+            for (; argStart != end; ++argStart) {
+                allocator.destroy(argStart);
+            }
         }
 
     public:
@@ -302,7 +324,7 @@ namespace ft {
 
             if (sizeAllocMem > count + argCount) {
                 initMem(pArrEnd, argCount);
-                copyContext(pArrBegin + indx + argCount, pArrBegin + indx, count - indx);
+                copyContextFromEnd(pArrBegin + indx + argCount, pArrBegin + indx, count - indx);
                 copyContext(pArrBegin + indx, argCount, argValueInit);
                 pArrEnd += argCount;
             }
@@ -331,8 +353,8 @@ namespace ft {
 
             if (sizeAllocMem > distItInsert + count) {
                 initMem(pArrEnd, distItInsert);
-                copyContext(pArrBegin + indx + distItInsert, pArrBegin + indx, count - indx);
-                copyContext(pArrBegin + indx, argItBegin, argItEnd);
+                copyContextFromEnd(pArrBegin + indx + distItInsert, pArrBegin + indx, count - indx);
+                copyContextFromEnd(pArrBegin + indx, argItBegin, argItEnd);
                 pArrEnd += distItInsert;
             }
             else {
@@ -349,6 +371,26 @@ namespace ft {
             }
             return (iterator(pArrBegin + indx));
         }
+
+        iterator erase(iterator argPos) {
+            return (erase(argPos, argPos + 1));
+        }
+
+        iterator erase(iterator argItBegin, iterator argItEnd) {
+            difference_type count = std::distance(argItBegin, argItEnd);
+            difference_type indx = std::distance(this->begin(), argItBegin);
+
+            if (argItBegin != argItEnd) {
+                copyContextFromBegin(pArrBegin + indx, pArrBegin + indx + count, this->size() - count - indx);
+                cleanRange(pArrBegin + this->size() - count, count);
+                pArrEnd = pArrBegin + this->size() - count;
+            }
+            return (this->begin() + indx);
+        }
+
+        /* void push_back(const_value_type argValueInit) { */
+        /* } */
+
     };
 
 }
