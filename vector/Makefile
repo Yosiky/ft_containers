@@ -1,5 +1,5 @@
-CC			=	g++
-CFLAGS		=	-Wall -Wextra --std=c++98 -g3 -O0
+CC			=	clang++
+CFLAGS		=	-Wall -Wextra --std=c++98 -O0
 
 SRC			=	test.cpp
 

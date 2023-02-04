@@ -10,6 +10,8 @@
 # include "enable_if.hpp"
 # include "is_integral.hpp"
 
+# define ADD_ELEMENT 2
+
 namespace ft {
     
     template<class T, class Allocator = std::allocator<T> >
@@ -388,9 +390,67 @@ namespace ft {
             return (this->begin() + indx);
         }
 
-        /* void push_back(const_value_type argValueInit) { */
-        /* } */
+        void push_back(const_value_type argValueInit) {
+            size_type countElem = this->size();
 
+            if (sizeAllocMem == countElem) {
+                size_type   newSizeAllocMem = sizeAllocMem * 2;
+                pointer newBegin = allocator.allocate(newSizeAllocMem);
+
+                cpy(newBegin, pArrBegin, countElem);
+                clean();
+                sizeAllocMem = newSizeAllocMem;
+                pArrBegin = newBegin;
+            }
+            pArrEnd = pArrBegin + countElem + 1;
+            allocator.construct(pArrEnd - 1, argValueInit);
+        }
+
+        void pop_back() {
+            if (this->size() >= 1) {
+                allocator.destroy(--pArrEnd);
+            }
+        }
+
+        void resize(size_type argCount, value_type argValue = value_type()) {
+            size_type arrSize = this->size();
+
+            if (arrSize >= argCount) {
+                while (arrSize != argCount) {
+                    --pArrEnd;
+                    --arrSize;
+                }
+            }
+            else {
+                size_type   newSizeAllocMem = argCount;
+                pointer newBegin = allocator.allocate(newSizeAllocMem);
+
+                cpy(newBegin, pArrBegin, arrSize);
+                clean();
+                sizeAllocMem = newSizeAllocMem;
+                pArrBegin = newBegin;
+                pArrEnd = pArrBegin + arrSize;
+                cpy(pArrEnd, argCount - arrSize, argValue);
+                pArrEnd = pArrBegin + argCount;
+            }
+        }
+
+        template <class U, class A>
+        void swap(vector<U, A> &argVector) {
+            pointer copyBegin = this->pArrBegin;
+            pointer copyEnd = this->pArrEnd;
+            size_type size = this->sizeAllocMem;
+            allocator_type alloc = this->allocator;
+            
+            this->pArrBegin = argVector.pArrBegin;
+            this->pArrEnd = argVector.pArrEnd;
+            this->sizeAllocMem = argVector.sizeAllocMem;
+            this->allocator = argVector.allocator;
+            argVector.pArrBegin = copyBegin;
+            argVector.pArrEnd = copyEnd;
+            argVector.sizeAllocMem = size;
+            argVector.allocator = alloc;
+        }
     };
 
 }
