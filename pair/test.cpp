@@ -20,5 +20,7 @@ int main(void) {
     printPair(pii3);
     printPair(pii4);
 
+    printPair(ft::make_pair(1, 0.5));
+
     return (0);
 }
