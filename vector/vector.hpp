@@ -149,6 +149,8 @@ namespace ft {
 
     public:
 
+
+
         constexpr vector()
         :   sizeAllocMem(0),
             allocator(),
@@ -202,6 +204,10 @@ namespace ft {
         constexpr vector& operator=(const vector &argOtherVector) {
             clean();
             init(argOtherVector.begin(), argOtherVector.end());
+        }
+
+        allocator_type get_allocator() const  {
+            return (allocator);
         }
 
         void assign(size_type argSizeArray, const T &argValueInit) {
