@@ -120,6 +120,10 @@ namespace ft {
             return (*this);
         }
 
+        self_type operator-(difference_type n) {
+            return (self_type(ptr - n));
+        }
+
         difference_type operator-(const self_type &a) const {
             return (this->ptr - a.ptr);
         }

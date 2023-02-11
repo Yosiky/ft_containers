@@ -6,7 +6,27 @@ class A {
 
 };
 
+template <class T>
+void print_vector(T &arr) {
+    for (typename T::iterator i = arr.begin(); i != arr.end(); ++i) {
+        std::cout << *i << ' ';
+    }
+    std::cout << std::endl;
+}
+
 int main(void) {
+    ft::vector<int> ftArr(10, 10);
+    ft::vector<int> ftArrCopy(ftArr.begin(), ftArr.end());
+    ft::vector<int> ftArrOther(15, 1);
+
+    print_vector(ftArr);
+    print_vector(ftArrCopy);
+    ftArrCopy.insert(ftArrCopy.begin(), ftArrOther.begin(), ftArrOther.end());
+    print_vector(ftArrCopy);
+    return (0);
+}
+
+int main4(void) {
     ft::vector<int> stdArrA(10, 1);
     ft::vector<int> stdArrB(4, 0);
 

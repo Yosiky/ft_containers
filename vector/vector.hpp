@@ -55,8 +55,8 @@ namespace ft {
 
         template <class InputIt>
         void copyContextFromBegin(pointer pArgDst, 
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin,
+                InputIt argItEnd) {
             for (InputIt it = argItBegin; it != argItEnd; ++it)
                 *(pArgDst++) = *it;
         }
@@ -77,9 +77,9 @@ namespace ft {
 
         template <class InputIt>
         void copyContextFromEnd(pointer pArgDst, 
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
-            pArgDst += std::distance(argItEnd, argItBegin);
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin,
+                InputIt argItEnd) {
+            pArgDst += std::distance(argItBegin, argItEnd);
             for (InputIt it = argItEnd - 1; it >= argItBegin; --it)
                 *(--pArgDst) = *it;
         }
@@ -106,8 +106,8 @@ namespace ft {
 
         template <class InputIt>
         void cpy(pointer pArgDst, 
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin, 
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin, 
+                InputIt argItEnd) {
             for (; argItBegin != argItEnd; ++argItBegin) {
                 allocator.construct(pArgDst++, *argItBegin);
             }
@@ -117,14 +117,14 @@ namespace ft {
             sizeAllocMem = argCount;
             pArrBegin = allocator.allocate(sizeAllocMem);
             pArrEnd = pArrBegin + argCount;
-            cpy(pArrBegin, argValueInit, argCount);
+            cpy(pArrBegin, argCount, argValueInit);
         }
 
         template <class InputIt>
         void init(
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin, 
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
-            difference_type diffPtr = std::distance(argItEnd, argItBegin);
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin, 
+                InputIt argItEnd) {
+            difference_type diffPtr = std::distance(argItBegin, argItEnd);
             sizeAllocMem = diffPtr;
             pArrBegin = allocator.allocate(diffPtr);
             pArrEnd = pArrBegin + diffPtr;
@@ -176,8 +176,8 @@ namespace ft {
 
         template<class InputIt>
         constexpr vector(
-            typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argFirst, 
-            typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argLast, 
+            typename enable_if<!is_integral<InputIt>::value, InputIt>::type argFirst, 
+            InputIt argLast, 
             const allocator_type &argAllocator = allocator_type())
         :   sizeAllocMem(0),
             allocator(argAllocator),
@@ -211,8 +211,8 @@ namespace ft {
 
         template< class InputIt >
         void assign(
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argBeginIt,
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argEndIt) {
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argBeginIt,
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argEndIt) {
             clean();
             init(argBeginIt, argEndIt);
         }
@@ -347,8 +347,8 @@ namespace ft {
 
         template <class InputIt>
         iterator insert(const_iterator argPos,
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItBegin,
-                typename enable_if<!is_integral<InputIt>::value_type, InputIt>::type argItEnd) {
+                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin,
+                InputIt argItEnd) {
             difference_type distItInsert = std::distance(argItBegin, argItEnd);
             difference_type count = this->size();
             difference_type indx = std::distance(argPos, const_iterator(pArrBegin));
