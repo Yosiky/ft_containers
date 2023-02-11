@@ -204,6 +204,7 @@ namespace ft {
         constexpr vector& operator=(const vector &argOtherVector) {
             clean();
             init(argOtherVector.begin(), argOtherVector.end());
+            return (*this);
         }
 
         allocator_type get_allocator() const  {
