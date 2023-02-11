@@ -2,27 +2,40 @@
 #include <vector>
 #include "vector.hpp"
 
-class A {
+#define COUNT_TEST 10000
 
-};
+uint32_t    countError;
 
 template <class T>
-void print_vector(T &arr) {
+void printVector(T &arr) {
     for (typename T::iterator i = arr.begin(); i != arr.end(); ++i) {
         std::cout << *i << ' ';
     }
     std::cout << std::endl;
 }
 
-int main(void) {
+template <class T>
+void initVectorVoid(void) {
+    ft::vector<T> vec;
+
+    PANIC_ON(vec.size() != 0, "vector size is not zero");
+}
+
+ main(void) {
+    countError = 0;
+    checkInitVector();
+    return (0);
+}
+
+int main5(void) {
     ft::vector<int> ftArr(10, 10);
     ft::vector<int> ftArrCopy(ftArr.begin(), ftArr.end());
     ft::vector<int> ftArrOther(15, 1);
 
-    print_vector(ftArr);
-    print_vector(ftArrCopy);
+    printVector(ftArr);
+    printVector(ftArrCopy);
     ftArrCopy.insert(ftArrCopy.begin(), ftArrOther.begin(), ftArrOther.end());
-    print_vector(ftArrCopy);
+    printVector(ftArrCopy);
     return (0);
 }
 
