@@ -45,7 +45,7 @@ public:
 	iterator end() { return this->c.end(); }
 };
 
-int main(int argc, char** argv) {
+int schoolTest(int argc, char** argv) {
 	if (argc != 2)
 	{
 		std::cerr << "Usage: ./test seed" << std::endl;
@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
 		std::cerr << "Count value:" << COUNT << std::endl;
 		return 1;
 	}
+
 	const int seed = atoi(argv[1]);
 	srand(seed);
 
@@ -61,7 +62,6 @@ int main(int argc, char** argv) {
 	ft::stack<int> stack_int;
 	ft::vector<Buffer> vector_buffer;
 	ft::stack<Buffer, std::deque<Buffer> > stack_deq_buffer;
-
 
 	for (int i = 0; i < COUNT; i++)
 	{
@@ -98,4 +98,9 @@ int main(int argc, char** argv) {
 	}
 	std::cout << std::endl;
 	return (0);
+}
+
+int main(int argc, char **argv) {
+    schoolTest(argc, argv);
+    return (0);
 }
