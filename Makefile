@@ -27,7 +27,7 @@ re: fclean all
 
 $(OBJ): %.o: %.cpp $(HEADER) Makefile
 	@printf "Compile obj file: %s\n" $<
-	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -fdiagnostics-color=always 2>>compile.log
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -fdiagnostics-color=always 2>compile.log
 
 $(NAME): $(OBJ) Makefile
 	@printf "Link executeble file: %s\n" $@
