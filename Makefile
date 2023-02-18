@@ -1,44 +1,35 @@
-COMPILER	=	g++
-CFLAGS		=	--std=c++98#-Wall -Wextra -Werror
-DEBUG		=	-g3
-OPT			=	-o3
+CC			=	g++
+CFLAGS		=	-Wall -Wextra --std=c++98 -O0
 
-LIBRARY		=	-lc
+SRC			=	main
 
-NAME		=	libcontainers.a
+OBJ			=	$(SRC:=.o)
 
-DIR_INC		=	inc
-HEADERS		=	philo.h
-CHEADER		=	$(addprefix -I,$(DIR_INC))
-LIST_HEADER	=	$(addprefix $(DIR_INC)/,$(HEADERS))
+HEADER_DIR	=	include
+HEADER		=	$(shell find include -type f -name '*.hpp')
 
-DIR_SRC 	=	src
-SRC			=		
+INCLUDE		=	-I $(HEADER_DIR)
 
-DIR_OBJ		=	obj
-OBJ			=	$(addprefix $(DIR_OBJ)/,$(SRC:.c=.o))
+NAME		=	test.out
 
-all: $(DIR_OBJ) $(NAME)
+.PHONY: all clean fclean re
 
-clean: 
-	rm -rf $(DIR_OBJ)
+all: $(NAME)
+
+clean:
+	rm -rf $(OBJ)
+	rm -rf compile.log
 
 fclean: clean
 	rm -rf $(NAME)
 
 re: fclean all
 
-$(DIR_OBJ):
-	mkdir -p $@
+$(OBJ): %.o: %.cpp $(HEADER) Makefile
+	@printf "Compile obj file: %s\n" $<
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@ -fdiagnostics-color=always 2>>compile.log
 
-$(DIR_OBJ)/%.o: $(DIR_SRC)/%.c $(LIST_HEADER) Makefile
-	$(COMPILER) $(CFLAGS) $(DEBUG) $(CHEADER) $< -c -o $@
+$(NAME): $(OBJ) Makefile
+	@printf "Link executeble file: %s\n" $@
+	@$(CC) $< -o $@
 
-$(NAME): $(OBJ) $(LIST_HEADER) Makefile
-	ar -rc $@ $(OBJ)
-	ranlib $@
-
-test: $(NAME)
-	$(COMPILER) -L. -lcontainers test/main.cpp -o test
-
-.PHONY: all clean fclean re
