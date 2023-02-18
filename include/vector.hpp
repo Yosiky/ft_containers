@@ -14,7 +14,7 @@
 
 namespace ft {
     
-    template<class T, class Allocator = std::allocator<T> >
+    template <class T, class Allocator = std::allocator<T> >
     class vector {
     public:
         typedef T                                               value_type;
@@ -400,7 +400,11 @@ namespace ft {
         void push_back(const_value_type argValueInit) {
             size_type countElem = this->size();
 
-            if (sizeAllocMem == countElem) {
+            if (sizeAllocMem == 0) {
+                sizeAllocMem = 10;
+                pArrBegin = allocator.allocate(sizeAllocMem);
+            }
+            else if (sizeAllocMem == countElem) {
                 size_type   newSizeAllocMem = sizeAllocMem * 2;
                 pointer newBegin = allocator.allocate(newSizeAllocMem);
 
@@ -458,7 +462,68 @@ namespace ft {
             argVector.sizeAllocMem = size;
             argVector.allocator = alloc;
         }
+
     };
+
+    template <class U, class Alloc>
+    bool operator!=(
+            const ft::vector<U, Alloc>& lhs,
+            const ft::vector<U, Alloc>& rhs ) {
+        return (!(lhs == rhs));
+    }
+
+    template <class U, class Alloc>
+    bool operator==(
+            const ft::vector<U, Alloc>& lhs,
+            const ft::vector<U, Alloc>& rhs ) {
+        if (lhs.size() != rhs.size())
+            return (false);
+        for (typename ft::vector<U, Alloc>::size_type i = 0; i < lhs.size(); ++i) {
+            if (lhs[i] != rhs[i])
+                return (false);
+        }
+        return (true);
+    }
+
+    template <class U, class Alloc>
+    bool operator>(
+            const ft::vector<U, Alloc>& lhs,
+            const ft::vector<U, Alloc>& rhs ) {
+        return (!(lhs <= rhs));
+    }
+
+    template <class U, class Alloc>
+    bool operator>=(
+            const ft::vector<U, Alloc>& lhs,
+            const ft::vector<U, Alloc>& rhs ) {
+        return (!(lhs < rhs));
+    }
+
+    template <class U, class Alloc>
+    bool operator<(const ft::vector<U, Alloc>& lhs,
+                            const ft::vector<U, Alloc>& rhs ) {
+        typename ft::vector<U, Alloc>::size_type count = lhs.size() > rhs.size() ? rhs.size() : lhs.size();
+
+        for (typename ft::vector<U, Alloc>::size_type i = 0; i < count; ++i) {
+            if (lhs[i] >= rhs[i])
+                return (false);
+        }
+        return (true);
+    }
+
+    template <class U, class Alloc>
+    bool operator<=(
+            const ft::vector<U, Alloc>& lhs,
+            const ft::vector<U, Alloc>& rhs ) {
+        typename ft::vector<U, Alloc>::size_type count = lhs.size() > rhs.size() ? rhs.size() : lhs.size();
+
+        for (typename ft::vector<U, Alloc>::size_type i = 0; i < count; ++i) {
+            if (lhs[i] > lhs[i])
+                return (false);
+        }
+        return (true);
+    }
+
 
 }
 
