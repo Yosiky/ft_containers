@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <deque>
+#include <ctime>
 
 #ifndef MY_LIB //CREATE A REAL STL EXAMPLE
 	#include <map>
@@ -101,6 +102,10 @@ int schoolTest(int argc, char** argv) {
 }
 
 int main(int argc, char **argv) {
-    schoolTest(argc, argv);
+    /* std::cout << "=== SchoolTest ===" << std::endl; */
+    /* schoolTest(argc, argv); */
+    std::vector<int> a(10, 0);
+    std::vector<int>::iterator i = a.end();
+    i = i - 1;
     return (0);
 }

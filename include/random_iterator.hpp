@@ -42,6 +42,7 @@ namespace ft {
 
         self_type &operator=(const self_type &other) {
             ptr = other.ptr;
+            return (*this);
         } 
 
         ~wrapper_iterator(void) { }
@@ -155,16 +156,20 @@ namespace ft {
 
         typedef T                               iterator;
         typedef wrapper_reverse_iterator<T>     self_type;
+
+        iterator it;
+        wrapper_reverse_iterator(void);
+
+    public:
+
+        typedef typename iterator::iterator_category  iterator_category;
         typedef typename iterator::value_type   value_type;
         typedef typename iterator::pointer      pointer;
         typedef typename iterator::reference    reference;
         typedef typename iterator::difference_type  difference_type;
 
-        iterator it;
 
-        wrapper_reverse_iterator(void);
 
-    public:
 
         wrapper_reverse_iterator(pointer other)
         : it(other) { }
@@ -178,6 +183,7 @@ namespace ft {
 
         self_type &operator=(const self_type &other) {
             it = other.it;
+            return (*this);
         }
 
         self_type &operator++() {
@@ -227,20 +233,28 @@ namespace ft {
     // LegacyRandomAccessIterator
     
         self_type &operator+=(difference_type n) {
-            it += n;
+            it -= n;
             return (*this);
         }
     
         self_type operator+(difference_type n) const {
-            return (self_type(it + n));
+            return (self_type(it - n));
         }
 
         friend self_type operator+(difference_type n, const self_type &other) {
+            return (self_type(other.it - n));
+        }
+
+        self_type operator-(difference_type n) const {
+            return (self_type(it + n));
+        }
+
+        friend self_type operator-(difference_type n, const self_type &other) {
             return (self_type(other.it + n));
         }
 
         self_type &operator-=(difference_type n) {
-            it -= n;
+            it += n;
             return (*this);
         }
 
@@ -249,7 +263,7 @@ namespace ft {
         }
 
         reference operator[](difference_type n) const {
-            return (*(it + n));
+            return (*(it - n));
         }
 
         bool operator<(const self_type &other) const {
@@ -267,9 +281,6 @@ namespace ft {
         bool operator<=(const self_type &other) const {
             return (this->it <= other.it);
         }
-
-
-
 
     };
 

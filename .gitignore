@@ -6,3 +6,4 @@ a.out
 *.d
 
 *.out
+include/containers_test

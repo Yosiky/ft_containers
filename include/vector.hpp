@@ -80,8 +80,9 @@ namespace ft {
                 typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin,
                 InputIt argItEnd) {
             pArgDst += std::distance(argItBegin, argItEnd);
-            for (InputIt it = argItEnd - 1; it >= argItBegin; --it)
-                *(--pArgDst) = *it;
+            for (; argItEnd != argItBegin;)
+                *(--pArgDst) = *(--argItEnd);
+            *(--pArgDst) = *(--argItEnd);
         }
 
         void initMem(pointer pArgBegin, size_type argCount) {
@@ -219,13 +220,9 @@ namespace ft {
         template< class InputIt >
         void assign(
                 typename enable_if<!is_integral<InputIt>::value, InputIt>::type argBeginIt,
-                typename enable_if<!is_integral<InputIt>::value, InputIt>::type argEndIt) {
+                InputIt argEndIt) {
             clean();
             init(argBeginIt, argEndIt);
-        }
-
-        allocator_type get(void) const {
-            return (allocator);
         }
 
         reference at(size_type argPosition) {
@@ -277,13 +274,13 @@ namespace ft {
         }
 
         iterator begin(void) { return (iterator(pArrBegin)); }
-        const_iterator begin(void) const { return (iterator(pArrBegin)); }
+        const_iterator begin(void) const { return (const_iterator(pArrBegin)); }
 
         iterator end(void) { return (iterator(pArrEnd)); }
         const_iterator end(void) const { return (const_iterator(pArrEnd)); }
 
         reverse_iterator rbegin(void) { return (reverse_iterator(pArrEnd - 1)); }
-        const_reverse_iterator rbegin(void) const { return (reverse_iterator(pArrEnd - 1)); }
+        const_reverse_iterator rbegin(void) const { return (const_reverse_iterator(pArrEnd - 1)); }
 
         reverse_iterator rend(void) { return (reverse_iterator(pArrBegin - 1)); }
         const_reverse_iterator rend(void) const { return (const_reverse_iterator(pArrBegin - 1)); }
@@ -356,9 +353,9 @@ namespace ft {
         iterator insert(const_iterator argPos,
                 typename enable_if<!is_integral<InputIt>::value, InputIt>::type argItBegin,
                 InputIt argItEnd) {
-            difference_type distItInsert = std::distance(argItBegin, argItEnd);
-            difference_type count = this->size();
-            difference_type indx = std::distance(argPos, const_iterator(pArrBegin));
+            size_type distItInsert = std::abs(std::distance(argItBegin, argItEnd));
+            size_type count = this->size();
+            size_type indx = std::abs(std::distance(argPos, const_iterator(pArrBegin)));
 
             if (sizeAllocMem > distItInsert + count) {
                 initMem(pArrEnd, distItInsert);
